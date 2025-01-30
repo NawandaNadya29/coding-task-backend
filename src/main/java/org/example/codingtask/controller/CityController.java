@@ -21,8 +21,8 @@ public class CityController {
     // Endpoint to get a list of cities with search query 'q' (or all cities if q is not given)
     @GetMapping("/suggestions")
     public List<CityDTO> getCitySuggestions(@RequestParam(required = false) String q,
-                                            @RequestParam(required = false) Double latitude,
-                                            @RequestParam(required = false) Long longitude) {  // Changed longitude to Long
+                                            @RequestParam(required = false) Double lat,  
+                                            @RequestParam(required = false) Long lon) {  
 
         List<City> cities;
 
@@ -33,14 +33,14 @@ public class CityController {
             cities = cityService.findAllCities();
         }
 
-        boolean useUserCoordinates = (latitude != null && longitude != null);
+        boolean useUserCoordinates = (lat != null && lon != null);
 
         for (City city : cities) {
-            if (city.getLat() != null && city.getLon() != null) {  // Changed latitude and longitude to lat and lon
+            if (city.getLat() != null && city.getLon() != null) {  
                 double score;
 
                 if (useUserCoordinates) {
-                    score = cityService.calculateScore(city, latitude, longitude.doubleValue());  // Used doubleValue() to convert Long to Double
+                    score = cityService.calculateScore(city, lat, lon);  
                 } else {
                     score = cityService.calculateScore(city, city.getLat(), city.getLon());
                 }
@@ -56,11 +56,11 @@ public class CityController {
                 .map(city -> {
                     // City name format with province and country
                     String formattedName = city.getName();
-                    if (city.getAdmin1() != null) {  // Changed admin1Code to admin1
-                        formattedName += ", " + city.getAdmin1();  // Adding province (admin1)
+                    if (city.getAdmin1() != null) {  
+                        formattedName += ", " + city.getAdmin1();  
                     }
                     if (city.getCountry() != null) {  // Changed countryCode to country
-                        formattedName += ", " + city.getCountry();  // Adding country (country)
+                        formattedName += ", " + city.getCountry();  
                     }
 
                     // Round the score with DecimalFormat and replace the comma with a period
@@ -73,8 +73,8 @@ public class CityController {
 
                     // Return a CityDTO object with a rounded score
                     return new CityDTO(formattedName,
-                            city.getLat(),  // Changed latitude to lat
-                            city.getLon(),  // Changed longitude to lon
+                            city.getLat(),  
+                            city.getLon(),  
                             roundedScore);
                 }).sorted((c1, c2) -> Double.compare(c2.getScore(), c1.getScore())).collect(Collectors.toList());
 
