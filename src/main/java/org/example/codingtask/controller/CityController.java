@@ -4,8 +4,6 @@ import org.example.codingtask.model.City;
 import org.example.codingtask.model.CityDTO;
 import org.example.codingtask.service.CityService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,72 +20,66 @@ public class CityController {
 
     // Endpoint to get a list of cities with search query 'q' (or all cities if q is not given)
     @GetMapping("/suggestions")
-    public ResponseEntity<List<CityDTO>> getCitySuggestions(@RequestParam(required = false) String q,
-                                            @RequestParam(required = false) Double lat,
-                                            @RequestParam(required = false) Double lon) {
-        try {
-            List<City> cities;
+    public List<CityDTO> getCitySuggestions(@RequestParam(required = false) String q,
+                                            @RequestParam(required = false) Double latitude,
+                                            @RequestParam(required = false) Double longitude) {
 
-            // Search for cities based on query 'q', if none, retrieve all cities
-            if (q != null && !q.isEmpty()) {
-                cities = cityService.findCities(q);
-            } else {
-                cities = cityService.findAllCities();
+        List<City> cities;
+
+        // Search for cities based on query 'q', if none, retrieve all cities
+        if (q != null && !q.isEmpty()) {
+            cities = cityService.findCities(q);
+        } else {
+            cities = cityService.findAllCities();
+        }
+
+        boolean useUserCoordinates = (latitude != null && longitude != null);
+
+        for (City city : cities) {
+            if (city.getLatitude() != null && city.getLongitude() != null) {
+                double score;
+
+                if (useUserCoordinates) {
+                    score = cityService.calculateScore(city, latitude, longitude);
+                } else {
+                    score = cityService.calculateScore(city, city.getLatitude(), city.getLongitude());
+                }
+
+                city.setScore(score);
             }
+        }
 
-            boolean useUserCoordinates = (lat != null && lon != null);
+        // Create a DecimalFormat object to round numbers to one decimal number
+        DecimalFormat df = new DecimalFormat("#.#");
 
-            for (City city : cities) {
-                if (city.getLat() != null && city.getLon() != null) {
-                    double score;
-
-                    if (useUserCoordinates) {
-                        score = cityService.calculateScore(city, lat, lon);
-                    } else {
-                        score = cityService.calculateScore(city, city.getLat(), city.getLon());
+        List<CityDTO> suggestions = cities.stream()
+                .map(city -> {
+                    // City name format with province and country
+                    String formattedName = city.getName();
+                    if (city.getAdmin1Code() != null) {
+                        formattedName += ", " + city.getAdmin1Code();
+                    }
+                    if (city.getCountryCode() != null) {
+                        formattedName += ", " + city.getCountryCode();
                     }
 
-                    city.setScore(score);
-                }
-            }
+                    // Round the score with DecimalFormat and replace the comma with a period
+                    String scoreFormatted = "0.0"; // Default value if score is null
+                    if (city.getScore() != null) {
+                        scoreFormatted = df.format(city.getScore()).replace(",", ".");
+                    }
 
-            // Create a DecimalFormat object to round numbers to one decimal number
-            DecimalFormat df = new DecimalFormat("#.#");
+                    double roundedScore = Double.parseDouble(scoreFormatted);
 
-            List<CityDTO> suggestions = cities.stream()
-                    .map(city -> {
-                        // City name format with province and country
-                        String formattedName = city.getName();
-                        if (city.getAdmin1() != null) {
-                            formattedName += ", " + city.getAdmin1();  // Menambahkan provinsi (admin1)
-                        }
-                        if (city.getCountry() != null) {
-                            formattedName += ", " + city.getCountry();  // Menambahkan negara (country)
-                        }
+                    // Return a CityDTO object with a rounded score
+                    return new CityDTO(formattedName,
+                            city.getLatitude(),
+                            city.getLongitude(),
+                            roundedScore);
+                }).sorted((c1, c2) -> Double.compare(c2.getScore(), c1.getScore())).collect(Collectors.toList());
 
-                        // Round the score with DecimalFormat and replace the comma with a period
-                        String scoreFormatted = "0.0"; // Default value if score is null
-                        if (city.getScore() != null) {
-                            scoreFormatted = df.format(city.getScore()).replace(",", ".");
-                        }
+        // Sort cities by highest score
 
-                        double roundedScore = Double.parseDouble(scoreFormatted);
-
-                        // Return a CityDTO object with a rounded score
-                        return new CityDTO(formattedName,
-                                city.getLat(),
-                                city.getLon(),
-                                roundedScore);
-                    }).sorted((c1, c2) -> Double.compare(c2.getScore(), c1.getScore())).collect(Collectors.toList());
-
-            return ResponseEntity.ok(suggestions);
-        } catch (Exception e) {
-            return ResponseEntity.status(500).body(null);
-        }
-    }
-
-    @ExceptionHandler(Exception.class)
-    public ResponseEntity<String> handleException(Exception e) {
-        return ResponseEntity.status(500).body("Internal Server Error: " + e.getMessage());
+        return suggestions;
     }
 }

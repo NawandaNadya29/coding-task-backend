@@ -10,17 +10,15 @@ import lombok.Data;
 @Data
 public class City {
     @Id
-    private Integer id;
+    private Integer geonameid;
     private String name;
-    private String ascii;
-    private String altName;
-    private Double lat;      
-    private Double lon;     
-    private String country;
-    private String cc2;
-    private String admin1; 
+    private String asciiname;
+    private String alternatenames;
+    private Double latitude;
+    private Double longitude;
+    private String countryCode;
+    private String admin1Code;
     private Long population;
-    private String dem;
-    private String tz;      
+    private String timezone;
     private Double score;
 }
