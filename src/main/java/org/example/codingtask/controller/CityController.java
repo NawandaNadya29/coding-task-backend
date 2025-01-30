@@ -22,7 +22,7 @@ public class CityController {
     @GetMapping("/suggestions")
     public List<CityDTO> getCitySuggestions(@RequestParam(required = false) String q,
                                             @RequestParam(required = false) Double lat,
-                                            @RequestParam(required = false) Long lon) {  
+                                            @RequestParam(required = false) Double lon) {
 
         List<City> cities;
 
@@ -36,11 +36,11 @@ public class CityController {
         boolean useUserCoordinates = (lat != null && lon != null);
 
         for (City city : cities) {
-            if (city.getLat() != null && city.getLon() != null) {  
+            if (city.getLat() != null && city.getLon() != null) {
                 double score;
 
                 if (useUserCoordinates) {
-                    score = cityService.calculateScore(city, lat, lon);  
+                    score = cityService.calculateScore(city, lat, lon);
                 } else {
                     score = cityService.calculateScore(city, city.getLat(), city.getLon());
                 }
@@ -56,10 +56,10 @@ public class CityController {
                 .map(city -> {
                     // City name format with province and country
                     String formattedName = city.getName();
-                    if (city.getAdmin1() != null) {  
-                        formattedName += ", " + city.getAdmin1();  
+                    if (city.getAdmin1() != null) {
+                        formattedName += ", " + city.getAdmin1(); 
                     }
-                    if (city.getCountry() != null) {  // Changed countryCode to country
+                    if (city.getCountry() != null) {
                         formattedName += ", " + city.getCountry();  
                     }
 
@@ -73,14 +73,11 @@ public class CityController {
 
                     // Return a CityDTO object with a rounded score
                     return new CityDTO(formattedName,
-                            city.getLat(),  
-                            city.getLon(),  
+                            city.getLat(),
+                            city.getLon(),
                             roundedScore);
                 }).sorted((c1, c2) -> Double.compare(c2.getScore(), c1.getScore())).collect(Collectors.toList());
-
-        // Sort cities by highest score
 
         return suggestions;
     }
 }
-
