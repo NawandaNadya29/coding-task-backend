@@ -47,3 +47,4 @@ public class CityDTO {
         this.score = score;
     }
 }
+

@@ -21,7 +21,7 @@ public class CityController {
     // Endpoint to get a list of cities with search query 'q' (or all cities if q is not given)
     @GetMapping("/suggestions")
     public List<CityDTO> getCitySuggestions(@RequestParam(required = false) String q,
-                                            @RequestParam(required = false) Double lat,  
+                                            @RequestParam(required = false) Double lat,
                                             @RequestParam(required = false) Long lon) {  
 
         List<City> cities;
@@ -83,3 +83,4 @@ public class CityController {
         return suggestions;
     }
 }
+

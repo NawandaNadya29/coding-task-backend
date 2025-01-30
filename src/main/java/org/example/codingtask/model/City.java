@@ -13,7 +13,7 @@ public class City {
     private Integer id;
     private String name;
     private String ascii;
-    private String altName;  
+    private String altName;
     private Double lat;      
     private Double lon;     
     private String country;
