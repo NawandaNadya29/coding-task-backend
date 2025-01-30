@@ -34,8 +34,8 @@ public class CityService {
     }
 
     // Calculating scores based on distance
-    public double calculateScore(City city, Double latitude, Double longitude) {
-        double distance = calculateDistance(latitude, longitude, city.getLatitude(), city.getLongitude());
+    public double calculateScore(City city, Double lat, Double long) {
+        double distance = calculateDistance(lat, long, city.getLat(), city.getLong());
         double maxDistance = 1000;
         double score = 1.0 - (distance / maxDistance);
         score = Math.max(0, Math.min(1, score));
@@ -43,16 +43,16 @@ public class CityService {
     }
 
     // Calculating the distance between two points
-    public double calculateDistance(Double latitude1, Double longitude1, Double latitude2, Double longitude2) {
+    public double calculateDistance(Double lat1, Double lon1, Double lat2, Double lon2) {
         final double radiusOfEarthInKilometers = 6371;
-        double latitudeDifference = Math.toRadians(latitude2 - latitude1);
-        double longitudeDifference = Math.toRadians(longitude2 - longitude1);
+        double latitudeDifference = Math.toRadians(lat2 - lat1); 
+        double longitudeDifference = Math.toRadians(lon2 - lon1); 
 
         double a = Math.sin(latitudeDifference / 2) * Math.sin(latitudeDifference / 2) +
-                Math.cos(Math.toRadians(latitude1)) * Math.cos(Math.toRadians(latitude2)) *
+                Math.cos(Math.toRadians(lat1)) * Math.cos(Math.toRadians(lat2)) *
                         Math.sin(longitudeDifference / 2) * Math.sin(longitudeDifference / 2);
 
-        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return radiusOfEarthInKilometers * c;
+        double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));  
+        return radiusOfEarthInKilometers * c;  
     }
 }

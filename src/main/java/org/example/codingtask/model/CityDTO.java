@@ -2,18 +2,19 @@ package org.example.codingtask.model;
 
 public class CityDTO {
     private String name;
-    private Double latitude;
-    private Double longitude;
+    private Double lat;     
+    private Double long;      
     private Double score;
 
     // Constructor
-    public CityDTO(String name, Double latitude, Double longitude, Double score) {
+    public CityDTO(String name, Double lat, Double long, Double score) {
         this.name = name;
-        this.latitude = latitude;
-        this.longitude = longitude;
+        this.lat = lat;
+        this.lon = long;
         this.score = score;
     }
 
+    // Getter and Setter
     public String getName() {
         return name;
     }
@@ -22,20 +23,20 @@ public class CityDTO {
         this.name = name;
     }
 
-    public Double getLatitude() {
-        return latitude;
+    public Double getLat() {
+        return lat;
     }
 
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
+    public void setLat(Double lat) {
+        this.lat = lat;
     }
 
-    public Double getLongitude() {
-        return longitude;
+    public Double getLong() {
+        return long;
     }
 
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
+    public void setLong(Double long) {
+        this.long = long;
     }
 
     public Double getScore() {
